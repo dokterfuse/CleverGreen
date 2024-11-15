@@ -1,0 +1,27 @@
+/* css/style.css */
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+h1 {
+    color: #2b7a78;
+}
+
+#managementData, #agentData {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 20px;
+}
+
+/* Mobile-friendly design for agents interface */
+@media (max-width: 768px) {
+    body {
+        background-color: #f4f4f4;
+    }
+
+    #agentData {
+        font-size: 14px;
+    }
+}

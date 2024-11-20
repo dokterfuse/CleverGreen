@@ -1,30 +1,40 @@
 <?php
-// api/api.php
+// Include database connection
 include '../db/db.php';
 
+// Set response type to JSON
 header('Content-Type: application/json');
 
-// Example route for getting data
+// Handle GET requests (Transaction details by CustomerID)
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-    $sql = "SELECT * FROM your_table";
-    $result = $conn->query($sql);
+    $customerID = isset($_GET['CustomerID']) ? $_GET['CustomerID'] : null;
 
-    $data = [];
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $data[] = $row;
+    if ($customerID) {
+        // Prepare SQL query to fetch transaction details
+        $sql = "SELECT TransactionID, Status, TotalAmount, Date FROM Transactions WHERE CustomerID = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $customerID);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        // Check if any transactions were found
+        if ($result->num_rows > 0) {
+            $transactions = [];
+            while ($row = $result->fetch_assoc()) {
+                $transactions[] = $row;
+            }
+            echo json_encode($transactions);
+        } else {
+            // No transactions found
+            echo json_encode(["message" => "No transactions found for this CustomerID."]);
         }
+    } else {
+        echo json_encode(["message" => "Please provide a valid CustomerID."]);
     }
-    echo json_encode($data);
-    exit;
+    
+    exit; 
 }
 
-// Example route for posting data (replace with actual logic)
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Handle POST requests here
-    echo json_encode(["message" => "POST request handled"]);
-    exit;
-}
-
+// Close the database connection
 $conn->close();
 ?>

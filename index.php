@@ -1,9 +1,3 @@
-<?php
-
-// Zet de paginatitel
-$pageTitle = "Welcome!";
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,24 +9,7 @@ $pageTitle = "Welcome!";
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <header>
-        <h1><?php echo $pageTitle; ?></h1>
-    </header>
-    <nav>
-        <a href="management/index.php">Management</a>
-        <a href="#">Agents</a>
-        <a href="#">Services</a>
-        <a href="#">Contact</a>
-        
-        <!-- Dropdown Menu for Dashboard -->
-        <div class="dropdown">
-            <div class="dropdown-content">
-                <a href="management/history/index.php">History</a>
-                <a href="management/history/index.php">Management</a>
-            </div>
-        </div>
-    </nav>
-
+<?php include 'header.php';?>
     <main>
         <h2>Welcome to the homepage of Clever Green
         
@@ -44,7 +21,6 @@ $pageTitle = "Welcome!";
 
         <p>If you'd like to know more about our services or get in touch, feel free to browse the rest of the site.</p>
     </main>
-
     <footer>
         <p>&copy; <?php echo date("Y"); ?> My Website. All Rights Reserved.</p>
     </footer>

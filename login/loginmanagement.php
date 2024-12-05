@@ -18,23 +18,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($result->num_rows === 1) {
             $email = $result->fetch_assoc();
 
-            // Verifieer het wachtwoord
-            if (password_verify($password, $email['Password'])) {
-                // Start een sessie en sla gebruikersinfo op
+            if ($password === $email['Password']) { 
                 $_SESSION['logged_in'] = true;
-
-                // Stuur gebruiker naar de management-pagina
-                header('Location: management/index.php');
+                header('Location: ../management/index.php');
                 exit();
             } else {
                 $error = "Onjuist wachtwoord.";
             }
+            
         } else {
             $error = "Gebruiker niet gevonden.";
         }
-    } else {
-        $error = "Vul alle velden in.";
-    }
+    } 
+
 }
 ?>
 <!DOCTYPE html>
@@ -43,16 +39,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inloggen</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
+<?php include '../header.php';?>
     <h3>Inloggen</h3>
     <?php if (isset($error)): ?>
         <p style="color: red;"><?php echo $error; ?></p>
     <?php endif; ?>
-    <form method="POST" action="login.php"> 
-        <label for="username">Gebruikersnaam:</label>
-        <input type="text" name="username" id="username" required>
+    <form method="POST" action="loginmanagement.php"> 
+        <label for="email">Gebruikersnaam:</label>
+        <input type="text" name="email" id="email" required>
         <label for="password">Wachtwoord:</label>
         <input type="password" name="password" id="password" required>
         <button type="submit">Inloggen</button>

@@ -2,7 +2,6 @@
 // Include database connection
 include '../db/db.php';
 
-
 session_start();
 
 // Controleer of de gebruiker is ingelogd
@@ -11,7 +10,6 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     header('Location: ../login/loginmanagement.php');
     exit();
 }
-
 
 // Set default values for filter and sort
 $customerID = '';
@@ -46,8 +44,7 @@ $result = $stmt->get_result();
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-    <h3>Management Dashboard</h3>
-
+<?php include '../header.php';?>
     <!-- Filter and Sort Form -->
     <form method="POST" action="index.php" id="filterBar">
         <input type="text" name="filterInput" placeholder="Filter by customer..." value="<?php echo htmlspecialchars($customerID); ?>">

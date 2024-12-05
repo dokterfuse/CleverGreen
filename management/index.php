@@ -1,58 +1,91 @@
+<?php
+// Include database connection
+include '../db/db.php';
+
+
+session_start();
+
+// Controleer of de gebruiker is ingelogd
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+    // Als de gebruiker niet is ingelogd, redirect naar login.php
+    header('Location: ../login/loginmanagement.php');
+    exit();
+}
+
+
+// Set default values for filter and sort
+$customerID = '';
+$sort = 'date_desc';
+
+// Check if form was submitted
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $customerID = isset($_POST['filterInput']) ? trim($_POST['filterInput']) : '';
+    $sort = isset($_POST['sortDropdown']) ? $_POST['sortDropdown'] : 'date_desc';
+}
+
+// Prepare the SQL query based on the filter and sort
+$orderBy = ($sort === 'date_asc') ? 'ASC' : 'DESC';
+$sql = "SELECT TransactionID, Status, TotalAmount, Date 
+        FROM Transactions 
+        WHERE CustomerID LIKE ?
+        ORDER BY Date $orderBy";
+
+$stmt = $conn->prepare($sql);
+$likeCustomerID = "%$customerID%"; // Use LIKE for partial matches
+$stmt->bind_param("s", $likeCustomerID);
+$stmt->execute();
+$result = $stmt->get_result();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Management Interface</title>
+    <title>Management Dashboard</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-    <h1>Management Dashboard</h1>
+    <h3>Management Dashboard</h3>
 
-    <div id="filterBar">
-        <input type="text" id="filterInput" placeholder="Filter by customer...">
-        <select id="sortDropdown">
-            <option value="date_desc">Newest First</option>
-            <option value="date_asc">Oldest First</option>
+    <!-- Filter and Sort Form -->
+    <form method="POST" action="index.php" id="filterBar">
+        <input type="text" name="filterInput" placeholder="Filter by customer..." value="<?php echo htmlspecialchars($customerID); ?>">
+        <select name="sortDropdown">
+            <option value="date_desc" <?php if ($sort === 'date_desc') echo 'selected'; ?>>Newest First</option>
+            <option value="date_asc" <?php if ($sort === 'date_asc') echo 'selected'; ?>>Oldest First</option>
         </select>
+        <button type="submit">Apply</button>
+    </form>
+
+    <!-- Data Table -->
+    <div id="dataTable">
+        <?php if ($result->num_rows > 0): ?>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Transaction ID</th>
+                        <th>Status</th>
+                        <th>Total Amount</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($row = $result->fetch_assoc()): ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($row['TransactionID']); ?></td>
+                            <td><?php echo htmlspecialchars($row['Status']); ?></td>
+                            <td><?php echo htmlspecialchars($row['TotalAmount']); ?></td>
+                            <td><?php echo htmlspecialchars($row['Date']); ?></td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+        <?php else: ?>
+            <p>No transactions found.</p>
+        <?php endif; ?>
     </div>
-    
-    <div id="dataTable"></div>
 
-    <script>
-        function fetchData() {
-            const dataTable = document.getElementById('dataTable');
-            dataTable.innerHTML = '<div>Loading...</div>'; // Show loading indicator
-
-            const filter = document.getElementById('filterInput').value;
-            const sort = document.getElementById('sortDropdown').value;
-
-            fetch(`../api/api.php?filter=${filter}&sort=${sort}`)
-                .then(response => response.json())
-                .then(data => {
-                    dataTable.innerHTML = ""; // Clear existing data
-                    if (data.length === 0) {
-                        dataTable.innerHTML = '<div>No transactions found.</div>';
-                    } else {
-                        data.forEach(item => {
-                            const row = document.createElement('div');
-                            row.textContent = `Transaction: ${item.id}, Date: ${item.created_at}`;
-                            dataTable.appendChild(row);
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching data:', error);
-                    dataTable.innerHTML = '<div style="color:red;">Failed to load data. Please try again later.</div>';
-                });
-        }
-
-        // Attach event listeners
-        document.getElementById('filterInput').addEventListener('input', fetchData);
-        document.getElementById('sortDropdown').addEventListener('change', fetchData);
-
-        // Fetch initial data on page load
-        fetchData();
-    </script>
+    <?php $conn->close(); ?>
 </body>
 </html>

@@ -44,7 +44,7 @@ $result = $stmt->get_result();
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-<?php include '../header.php';?>
+<?php include 'header.php';?>
     <!-- Filter and Sort Form -->
     <form method="POST" action="index.php" id="filterBar">
         <input type="text" name="filterInput" placeholder="Filter by customer..." value="<?php echo htmlspecialchars($customerID); ?>">

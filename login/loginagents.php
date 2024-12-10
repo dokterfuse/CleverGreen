@@ -1,6 +1,6 @@
 <?php
 session_start();
-include '../db/db.php'; // Zorg ervoor dat je database-verbinding is opgenomen
+include '../db/db.php'; 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email']);
@@ -8,44 +8,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Controleer of de velden niet leeg zijn
     if (!empty($email) && !empty($password)) {
-        // Bereid SQL-query voor
-        $sql = "SELECT * FROM Owners WHERE Email = ?";
+        $sql = "SELECT * FROM Customers WHERE Email = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
 
         if ($result->num_rows === 1) {
-            $email = $result->fetch_assoc();
+            $agent = $result->fetch_assoc();
 
-            if ($password === $email['Password']) { 
-                $_SESSION['logged_in'] = true;
-                header('Location: ../management/index.php');
+            if ($password === $agent['password']) { 
+                $_SESSION['agent_logged_in'] = true; 
+                header('Location: ../agents/index.php'); 
                 exit();
             } else {
-                $error = "Onjuist wachtwoord.";
+                $error = "Wrong password.";
             }
             
         } else {
-            $error = "Gebruiker niet gevonden.";
+            $error = "User not found.";
         }
     } 
-
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inloggen</title>
+    <title>Inloggen voor Agents</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
     <?php if (isset($error)): ?>
         <p style="color: red;"><?php echo $error; ?></p>
     <?php endif; ?>
-    <form method="POST" action="loginmanagement.php" id="filterBar"> 
+    <form method="POST" action="loginagents.php" id="filterBar"> 
         <label for="email">Email:</label>
         <input type="text" name="email" id="email" required>
         <label for="password">Password:</label>
